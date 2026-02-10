@@ -3,7 +3,8 @@
 """
 Jogo de Caça-Palavras no Terminal
 Interface visual aprimorada com arte ASCII e cores!
-Sistema de níveis progressivos com tema de Sistemas Operacionais
+Sistema de 3 níveis progressivos com tema de Computação
+ESQUEMA DE CORES: FOGO/ENERGIA (Vermelho/Laranja)
 """
 
 import random
@@ -21,52 +22,38 @@ class CacaPalavras:
         self.marcacoes = set()
         self.nivel = 1
         
-        # Palavras organizadas por nível de dificuldade (tema: Sistemas Operacionais)
+        # Palavras organizadas por nível de dificuldade (tema: Computação)
         self.palavras_por_nivel = {
-            1: {  # Nível Iniciante - Conceitos básicos
+            1: {  # Nível Iniciante - Palavras simples
                 'tamanho': 10,
-                'palavras': ['KERNEL', 'PROCESSO', 'MEMORIA', 'ARQUIVO', 'SISTEMA', 
-                           'LINUX', 'WINDOWS', 'DISCO', 'REDE', 'USUARIO']
+                'palavras': ['MOUSE', 'TELA', 'TECLADO', 'PASTA', 'ARQUIVO', 
+                           'REDE', 'WIFI', 'DISCO', 'MEMORIA', 'SISTEMA']
             },
-            2: {  # Nível Intermediário - Componentes
+            2: {  # Nível Intermediário - Palavras médias
                 'tamanho': 12,
-                'palavras': ['SCHEDULER', 'THREADS', 'VIRTUAL', 'CACHE', 'DRIVER',
-                           'INTERRUPT', 'FIREWALL', 'SHELL', 'DAEMON', 'PERMISSAO', 'SWAP']
+                'palavras': ['INTERNET', 'PROGRAMA', 'WINDOWS', 'BACKUP', 'SERVIDOR',
+                           'FIREWALL', 'ANTIVIRUS', 'NAVEGADOR', 'EMAIL', 'DOWNLOAD']
             },
-            3: {  # Nível Avançado - Termos técnicos
+            3: {  # Nível Avançado - Palavras mais complexas
                 'tamanho': 14,
-                'palavras': ['DEADLOCK', 'SEMAPHORE', 'MUTEX', 'PIPELINE', 'SYSCALL',
-                           'FILESYSTEM', 'MULTITHREAD', 'FORK', 'BOOTLOADER', 'PARTITION', 
-                           'REGISTRY', 'KERNEL']
-            },
-            4: {  # Nível Expert - Conceitos avançados
-                'tamanho': 15,
-                'palavras': ['SYNCHRONIZATION', 'VIRTUALIZATION', 'CONCURRENCY', 'SEGMENTATION',
-                           'PAGING', 'SCHEDULER', 'INTERRUPT', 'BUFFERING', 'SPOOLING',
-                           'CONTEXT', 'PREEMPTION', 'THROUGHPUT', 'LATENCY']
-            },
-            5: {  # Nível Master - Desafio máximo
-                'tamanho': 16,
-                'palavras': ['ASYMMETRIC', 'MULTIPROCESSING', 'DISTRIBUTED', 'REALTIME',
-                           'MONOLITHIC', 'MICROKERNEL', 'HYPERVISOR', 'CONTAINERIZATION',
-                           'ORCHESTRATION', 'AUTHENTICATION', 'ENCRYPTION', 'FRAGMENTATION',
-                           'DEFRAGMENTATION']
+                'palavras': ['PROCESSADOR', 'APLICATIVO', 'SOFTWARE', 'HARDWARE', 'SEGURANCA',
+                           'IMPRESSORA', 'COMPUTADOR', 'BLUETOOTH', 'PENDRIVE', 'NOTEBOOK']
             }
         }
         
-        # Cores ANSI
+        # Cores ANSI - ESQUEMA FOGO/ENERGIA (Vermelho/Laranja)
         self.RESET = '\033[0m'
         self.BOLD = '\033[1m'
-        self.GREEN = '\033[92m'
-        self.YELLOW = '\033[93m'
-        self.RED = '\033[91m'
-        self.CYAN = '\033[96m'
-        self.MAGENTA = '\033[95m'
-        self.BLUE = '\033[94m'
-        self.WHITE = '\033[97m'
-        self.BG_BLUE = '\033[44m'
-        self.BG_GREEN = '\033[42m'
-        self.BG_YELLOW = '\033[43m'
+        self.GREEN = '\033[38;5;208m'  # Laranja para sucesso
+        self.YELLOW = '\033[38;5;220m'  # Amarelo-laranja
+        self.RED = '\033[91m'  # Vermelho vibrante
+        self.CYAN = '\033[38;5;202m'  # Laranja-avermelhado
+        self.MAGENTA = '\033[38;5;196m'  # Vermelho intenso
+        self.BLUE = '\033[38;5;166m'  # Laranja escuro
+        self.WHITE = '\033[38;5;255m'  # Branco brilhante
+        self.BG_BLUE = '\033[48;5;88m'  # Fundo vermelho escuro
+        self.BG_GREEN = '\033[48;5;208m'  # Fundo laranja para palavras encontradas
+        self.BG_YELLOW = '\033[48;5;166m'  # Fundo laranja escuro
         
     def limpar_tela(self):
         """Limpa a tela do terminal"""
@@ -77,7 +64,7 @@ class CacaPalavras:
         self.nivel = nivel
         
         # Atualiza tamanho do grid baseado no nível
-        config_nivel = self.palavras_por_nivel.get(nivel, self.palavras_por_nivel[5])
+        config_nivel = self.palavras_por_nivel.get(nivel, self.palavras_por_nivel[3])
         self.tamanho = config_nivel['tamanho']
         
         # Reinicia o grid
@@ -95,16 +82,14 @@ class CacaPalavras:
         nomes = {
             1: "INICIANTE",
             2: "INTERMEDIÁRIO",
-            3: "AVANÇADO",
-            4: "EXPERT",
-            5: "MASTER"
+            3: "AVANÇADO"
         }
         return nomes.get(self.nivel, "DESCONHECIDO")
     
     def banner_titulo(self):
         """Exibe um banner ASCII art bonito"""
         banner = f"""
-{self.CYAN}{self.BOLD}
+{self.RED}{self.BOLD}
     ╔═══════════════════════════════════════════════════════════════╗
     ║                                                               ║
     ║  ██╗    ██╗███████╗██╗      ██████╗ ██████╗ ███╗   ███╗███╗ ║
@@ -114,17 +99,17 @@ class CacaPalavras:
     ║  ╚███╔███╔╝███████╗███████╗╚██████╗╚██████╔╝██║ ╚═╝ ██║███╗ ║
     ║   ╚══╝╚══╝ ╚══════╝╚══════╝ ╚═════╝ ╚═════╝ ╚═╝     ╚═╝╚══╝ ║
     ║                                                               ║
-    ║                    🎮  T O   T H E   G A M E  🎮             ║
+    ║                    🔥  T O   T H E   G A M E  🔥             ║
     ║                                                               ║
     ╚═══════════════════════════════════════════════════════════════╝
 {self.RESET}"""
         print(banner)
         
         # Exibe nível atual
-        nivel_cor = self.YELLOW if self.nivel <= 2 else self.MAGENTA if self.nivel <= 3 else self.RED
+        nivel_cor = self.YELLOW if self.nivel == 1 else self.CYAN if self.nivel == 2 else self.MAGENTA
         print(f"\n    {nivel_cor}{self.BOLD}╔════════════════════════════════════════╗{self.RESET}")
         print(f"    {nivel_cor}{self.BOLD}║     NÍVEL {self.nivel}: {self.get_nome_nivel():<24} ║{self.RESET}")
-        print(f"    {nivel_cor}{self.BOLD}║     Tema: SISTEMAS OPERACIONAIS        ║{self.RESET}")
+        print(f"    {nivel_cor}{self.BOLD}║     Tema: COMPUTAÇÃO                   ║{self.RESET}")
         print(f"    {nivel_cor}{self.BOLD}╚════════════════════════════════════════╝{self.RESET}")
     
     def banner_vitoria(self):
@@ -140,7 +125,7 @@ class CacaPalavras:
     ║    ╚████╔╝ ╚██████╔╝╚██████╗███████╗     ╚████╔╝ ███████╗    ║
     ║     ╚═══╝   ╚═════╝  ╚═════╝╚══════╝      ╚═══╝  ╚══════╝    ║
     ║                                                               ║
-    ║                  🎉  V E N C E U !  🎉                       ║
+    ║                  🔥  V E N C E U !  🔥                       ║
     ║                                                               ║
     ╚═══════════════════════════════════════════════════════════════╝
 {self.RESET}"""
@@ -156,7 +141,7 @@ class CacaPalavras:
         blocos_cheios = int((encontradas / total) * 40)
         blocos_vazios = 40 - blocos_cheios
         
-        barra = f"{self.GREEN}█{self.RESET}" * blocos_cheios + f"{self.WHITE}░{self.RESET}" * blocos_vazios
+        barra = f"{self.GREEN}█{self.RESET}" * blocos_cheios + f"{self.YELLOW}░{self.RESET}" * blocos_vazios
         
         return f"""
     ╔═══════════════════════════════════════════════════════════════╗
@@ -231,6 +216,7 @@ class CacaPalavras:
     def gerar_caca_palavras(self):
         """Gera o caça-palavras colocando todas as palavras"""
         direcoes = ['H', 'V', 'D', 'A']
+        palavras_nao_inseridas = []
         
         for palavra in self.palavras:
             colocada = False
@@ -247,12 +233,20 @@ class CacaPalavras:
                     colocada = True
                 
                 tentativas += 1
+            
+            # Se não conseguiu colocar a palavra, adiciona à lista de não inseridas
+            if not colocada:
+                palavras_nao_inseridas.append(palavra)
+        
+        # Remove palavras que não foram inseridas da lista de palavras do jogo
+        for palavra in palavras_nao_inseridas:
+            self.palavras.remove(palavra)
     
         self.preencher_grid()
     
     def exibir_grid(self):
         """Exibe o grid com design moderno"""
-        print(f"\n{self.CYAN}{self.BOLD}    ╔═══════════════ TABULEIRO ═══════════════╗{self.RESET}\n")
+        print(f"\n{self.RED}{self.BOLD}    ╔═══════════════ TABULEIRO ═══════════════╗{self.RESET}\n")
         
         # Cabeçalho com números das colunas
         print(f"    {self.YELLOW}    ", end="")
@@ -260,11 +254,11 @@ class CacaPalavras:
             print(f" {i:2}", end="")
         print(f"{self.RESET}")
         
-        print(f"    {self.CYAN}    ╔{'═══' * self.tamanho}═╗{self.RESET}")
+        print(f"    {self.RED}    ╔{'═══' * self.tamanho}═╗{self.RESET}")
         
         # Linhas do grid
         for i in range(self.tamanho):
-            print(f"    {self.YELLOW} {i:2} {self.CYAN}║{self.RESET}", end="")
+            print(f"    {self.YELLOW} {i:2} {self.RED}║{self.RESET}", end="")
             for j in range(self.tamanho):
                 letra = self.grid[i][j]
                 
@@ -273,9 +267,9 @@ class CacaPalavras:
                     print(f"{self.BG_GREEN}{self.BOLD}{self.WHITE} {letra} {self.RESET}", end="")
                 else:
                     print(f" {self.WHITE}{letra}{self.RESET} ", end="")
-            print(f"{self.CYAN}║{self.RESET}")
+            print(f"{self.RED}║{self.RESET}")
         
-        print(f"    {self.CYAN}    ╚{'═══' * self.tamanho}═╝{self.RESET}")
+        print(f"    {self.RED}    ╚{'═══' * self.tamanho}═╝{self.RESET}")
     
     def exibir_palavras(self):
         """Exibe a lista de palavras com design bonito"""
@@ -372,8 +366,7 @@ class CacaPalavras:
         if palavra is None:
             return "INVALIDA", None, []
         
-        palavra_reversa = palavra[::-1]
-        
+        # Verifica apenas palavras na direção correta (sem reverso)
         if palavra in self.palavras:
             if palavra in self.palavras_encontradas:
                 return "JÁ_ENCONTRADA", palavra, posicoes
@@ -381,13 +374,6 @@ class CacaPalavras:
                 self.palavras_encontradas.add(palavra)
                 self.marcacoes.update(posicoes)
                 return "CORRETA", palavra, posicoes
-        elif palavra_reversa in self.palavras:
-            if palavra_reversa in self.palavras_encontradas:
-                return "JÁ_ENCONTRADA", palavra_reversa, posicoes
-            else:
-                self.palavras_encontradas.add(palavra_reversa)
-                self.marcacoes.update(posicoes)
-                return "CORRETA", palavra_reversa, posicoes
         else:
             return "INCORRETA", palavra, posicoes
     
@@ -398,7 +384,7 @@ class CacaPalavras:
     def animacao_carregamento(self):
         """Animação de carregamento"""
         frames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
-        print(f"\n    {self.CYAN}Gerando caça-palavras ", end="", flush=True)
+        print(f"\n    {self.RED}Gerando caça-palavras ", end="", flush=True)
         for _ in range(20):
             for frame in frames:
                 print(f"{frame}", end="", flush=True)
@@ -431,11 +417,11 @@ class CacaPalavras:
             self.exibir_grid()
             self.exibir_palavras()
             
-            print(f"\n{self.BLUE}{self.BOLD}    ╔════════════════ INSTRUÇÕES ════════════════╗{self.RESET}")
-            print(f"    {self.BLUE}║{self.RESET}  📍 Digite coordenadas: {self.YELLOW}linha,coluna{self.RESET}    {self.BLUE}║{self.RESET}")
-            print(f"    {self.BLUE}║{self.RESET}  💡 Exemplo: {self.YELLOW}3,5{self.RESET} ou {self.YELLOW}3 5{self.RESET}             {self.BLUE}║{self.RESET}")
-            print(f"    {self.BLUE}║{self.RESET}  🚪 Digite {self.RED}'sair'{self.RESET} para desistir          {self.BLUE}║{self.RESET}")
-            print(f"    {self.BLUE}╚════════════════════════════════════════════╝{self.RESET}\n")
+            print(f"\n{self.CYAN}{self.BOLD}    ╔════════════════ INSTRUÇÕES ════════════════╗{self.RESET}")
+            print(f"    {self.CYAN}║{self.RESET}  📍 Digite coordenadas: {self.YELLOW}linha,coluna{self.RESET}    {self.CYAN}║{self.RESET}")
+            print(f"    {self.CYAN}║{self.RESET}  💡 Exemplo: {self.YELLOW}3,5{self.RESET} ou {self.YELLOW}3 5{self.RESET}             {self.CYAN}║{self.RESET}")
+            print(f"    {self.CYAN}║{self.RESET}  🚪 Digite {self.RED}'sair'{self.RESET} para desistir          {self.CYAN}║{self.RESET}")
+            print(f"    {self.CYAN}╚════════════════════════════════════════════╝{self.RESET}\n")
             
             coord_inicial = self.obter_coordenada("Coordenada INICIAL: ")
             
@@ -479,7 +465,7 @@ class CacaPalavras:
             print(self.banner_vitoria())
             print(self.barra_progresso())
             self.exibir_grid()
-            print(f"\n    {self.GREEN}{self.BOLD}🎊 Parabéns! Você completou o NÍVEL {self.nivel}! 🎊{self.RESET}\n")
+            print(f"\n    {self.GREEN}{self.BOLD}🔥 Parabéns! Você completou o NÍVEL {self.nivel}! 🔥{self.RESET}\n")
             return True  # Retorna True quando completou o nível
 
 
@@ -490,7 +476,7 @@ def main():
     
     continuar = True
     
-    while continuar and nivel_atual <= 5:
+    while continuar and nivel_atual <= 3:
         # Reinicia o jogo com o nível atual
         jogo.reiniciar_jogo(nivel_atual)
         
@@ -502,21 +488,26 @@ def main():
             continuar = False
         else:
             # Completou o nível - pergunta se quer continuar
-            if nivel_atual < 5:
+            if nivel_atual < 3:
+                # Obtém o nome do próximo nível
+                proximo_nivel = nivel_atual + 1
+                nomes_niveis = {1: "INICIANTE", 2: "INTERMEDIÁRIO", 3: "AVANÇADO"}
+                nome_proximo = nomes_niveis.get(proximo_nivel, "")
+                
                 print(f"\n{jogo.YELLOW}{jogo.BOLD}    ╔════════════════════════════════════════════╗{jogo.RESET}")
                 print(f"    {jogo.YELLOW}{jogo.BOLD}║     Deseja ir para o próximo nível?        ║{jogo.RESET}")
-                print(f"    {jogo.YELLOW}{jogo.BOLD}║     Nível {nivel_atual + 1}: {jogo.get_nome_nivel():<24} ║{jogo.RESET}")
+                print(f"    {jogo.YELLOW}{jogo.BOLD}║     Nível {proximo_nivel}: {nome_proximo:<24} ║{jogo.RESET}")
                 print(f"    {jogo.YELLOW}{jogo.BOLD}╚════════════════════════════════════════════╝{jogo.RESET}\n")
                 
                 resposta = input(f"    {jogo.CYAN}Digite 'sim' para continuar ou 'nao' para sair: {jogo.RESET}").strip().lower()
                 
                 if resposta in ['sim', 's', 'yes', 'y']:
                     nivel_atual += 1
-                    print(f"\n    {jogo.GREEN}🚀 Avançando para o nível {nivel_atual}!{jogo.RESET}")
+                    print(f"\n    {jogo.GREEN}🔥 Avançando para o nível {nivel_atual}!{jogo.RESET}")
                     time.sleep(2)
                 else:
                     continuar = False
-                    print(f"\n    {jogo.CYAN}Você completou {nivel_atual} nível(is)! Parabéns! 🎉{jogo.RESET}\n")
+                    print(f"\n    {jogo.RED}Você completou {nivel_atual} nível(is)! Parabéns! 🔥{jogo.RESET}\n")
             else:
                 # Completou todos os níveis
                 jogo.limpar_tela()
@@ -531,15 +522,15 @@ def main():
     ║        ██║  ██║██║ ╚═╝ ██║██║  ██║███████║   ██║   ███████╗ ║
     ║        ╚═╝  ╚═╝╚═╝     ╚═╝╚═╝  ╚═╝╚══════╝   ╚═╝   ╚══════╝ ║
     ║                                                               ║
-    ║          🏆  VOCÊ É UM MESTRE EM SISTEMAS OPERACIONAIS! 🏆   ║
-    ║              Completou todos os 5 níveis!                     ║
+    ║            🔥  VOCÊ É UM MESTRE EM COMPUTAÇÃO! 🔥            ║
+    ║              Completou todos os 3 níveis!                     ║
     ║                                                               ║
     ╚═══════════════════════════════════════════════════════════════╝
 {jogo.RESET}
                 """)
                 continuar = False
     
-    print(f"    {jogo.CYAN}Obrigado por jogar! 👋{jogo.RESET}\n")
+    print(f"    {jogo.RED}Obrigado por jogar! 🔥{jogo.RESET}\n")
 
 
 if __name__ == "__main__":
